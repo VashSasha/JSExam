@@ -1,3 +1,8 @@
+/**
+ * date: 01/10/2021
+ * v.5
+ * name: Vashchuk Oleksandr
+ */
 'use strict'
 class WeatherCheck {
     constructor() {
