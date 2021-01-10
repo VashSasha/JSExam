@@ -9,6 +9,10 @@ class WeatherCheck {
         this.APIKey = '2a423985a3a7232f530cc8c2f20638e1'
         this.main = document.querySelector('main')
     }
+
+    /**
+     * 
+     */
     async search(name, country) {
         try {
             const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${name},${country}&units=metric&lang=en_ru_ua&appid=${this.APIKey}`);
@@ -38,8 +42,9 @@ class WeatherCheck {
     }
 
     async search_nearByCities(lat, lon) {
+        let url = `https://api.openweathermap.org/data/2.5/find?lat=${lat}&lon=${lon}&cnt=5&units=metric&appid=${this.APIKey}`
         try {
-            const response = await fetch(`https://api.openweathermap.org/data/2.5/find?lat=${lat}&lon=${lon}&cnt=5&units=metric&appid=${this.APIKey}`);
+            const response = await fetch(url);
             const data = await response.json();
 
             return data;
@@ -94,7 +99,7 @@ class WeatherGenerator {
         this.currentData;
         this.init();
     }
-    getUserLoc() {
+    getUserLoc(url) {
    
         $.get("https://ipinfo.io?token=ad53e3139d44f3", response => {
             if (response) {return this.searchCity(response.city);}
@@ -169,14 +174,6 @@ class WeatherGenerator {
             case 'timeSh':
                 return d1.toLocaleString('en-US', { hour: 'numeric', hour12: true })
         }
-        // if (long == true) {
-        //     return d1.toLocaleString(('en-US'), {
-        //         hour: 'numeric',
-        //         minute: 'numeric'
-        //     })
-        // } else {
-        //     return d1.toLocaleString('en-US', { hour: 'numeric', hour12: true })
-        // }
     }
     getCurrent(data) {
         // console.log(data)
@@ -215,7 +212,6 @@ class WeatherGenerator {
     getHourly(data, type) {
         let block2 = document.createElement('div');
         block2.classList.add('block');
-
 
         let content = `
         <div class="block_header">
