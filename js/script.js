@@ -3,6 +3,7 @@
  * v.5
  * name: Vashchuk Oleksandr
  */
+
 'use strict'
 class WeatherCheck {
     constructor() {
@@ -10,10 +11,11 @@ class WeatherCheck {
         this.main = document.querySelector('main')
     }
 
-    /**
-     * 
-     */
     async search(name, country) {
+        /**
+         * Getting information of the searched city/country, such as:
+         * lon, lat; today's weather, clouds, timezone, etc.;
+         */
         try {
             const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${name},${country}&units=metric&lang=en_ru_ua&appid=${this.APIKey}`);
             const data = await response.json();
@@ -26,8 +28,10 @@ class WeatherCheck {
             console.log(error)
         }
     }
-
     async searhc_hourly(lat, lon) {
+        /**
+         * By using the lon and lat data from the previous API Call, we are getting hourly weather data for today.
+         */
         try {
             const response = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${this.APIKey}`);
             const data = await response.json();
@@ -41,7 +45,11 @@ class WeatherCheck {
         }
     }
 
+
     async search_nearByCities(lat, lon) {
+        /**
+         * With this API call we are getting information of the near by cities.
+         */
         let url = `https://api.openweathermap.org/data/2.5/find?lat=${lat}&lon=${lon}&cnt=5&units=metric&appid=${this.APIKey}`
         try {
             const response = await fetch(url);
@@ -52,7 +60,11 @@ class WeatherCheck {
             console.log(error)
         }
     }
+
     async search_fiveDays(name) {
+        /**
+         * With this API call we are getting information for five days forcast. (with 3h apart).
+         */
         try {
             const response = await fetch(`http:///api.openweathermap.org/data/2.5/forecast?q=${name}&lang=en_ru_ua&units=metric&appid=${this.APIKey}`);
             const data = await response.json();
@@ -65,6 +77,7 @@ class WeatherCheck {
             this.notFound(name)
         }
     }
+
     delElement(classEl) {
         const el = document.querySelectorAll(classEl);
         if (el) {
@@ -72,7 +85,11 @@ class WeatherCheck {
                 item.remove();
         }
     }
+
     notFound(name) {
+        /** 
+         * 404 Error page.
+        */
         let errorMesage = `
         <div class="error-wrap">  
             <img src="./img/404.png" alt=""> 
@@ -95,15 +112,19 @@ class WeatherGenerator {
     constructor() {
         this.main = document.querySelector('main')
         this.search = document.querySelector('#search');
-        this.searchInpt = document.querySelector('#search').placeholder
+        this.searchInpt = document.querySelector('#search').placeholder;
+        this.active = document.querySelector('.li_active');
         this.currentData;
         this.init();
     }
-    getUserLoc(url) {
-   
+
+    getUserLoc() {
+        /***
+         * I used jQuery because the source that provides this information recomended this way of executing.
+         */
         $.get("https://ipinfo.io?token=ad53e3139d44f3", response => {
-            if (response) {return this.searchCity(response.city);}
-            else {return this.searchCity('kyiv')}
+            if (response) { return this.searchCity(response.city); }
+            else { return this.searchCity('kyiv') }
         }, "jsonp")
 
     }
@@ -112,21 +133,21 @@ class WeatherGenerator {
         el.innerHTML = content;
         el.className = classEl;
         parent.append(el);
-        // return el;
-
     }
 
     delElement(classEl) {
-        // const el = document.querySelector(classEl);
-        // if (el) { el.remove(); }
-
         const el = document.querySelectorAll(classEl);
         if (el) {
             for (let item of el)
                 item.remove();
         }
     }
+
     showDate(type, d) {
+        /***
+         *  type -  is for different tipes of date;
+         *  d - is a date string; (2021-01-10 21:00:00)
+         */
         let nd = new Date(d)
         switch (type) {
             case 'date':
@@ -151,7 +172,16 @@ class WeatherGenerator {
     }
 
     msToKmh(speed) {
+         /**
+         * converting miles per hour to km per hour
+         */
         return (speed * 18) / 5
+    }
+    
+    degToDirection(num) {
+        let val = Math.floor((num / 22.5) + 0.5);
+        let arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+        return arr[(val % 16)];
     }
     unixConverter(timeCode, type) {
         let offset = this.offset
@@ -232,9 +262,9 @@ class WeatherGenerator {
             </div>
         `;
         let fill = grid_content
-        console.log(data)
+
         data.length = data.length ? data.length : 6;
-        console.log(data.length)
+
         for (let i = 0; i < data.length; i++) {
             switch (type) {
                 case 'five':
@@ -246,7 +276,7 @@ class WeatherGenerator {
                         <div class="bd_bt">${data[i].weather[0].main}</div>
                         <div class="bd_bt">${this.roundUp(data[i].main.temp)}º</div>
                         <div class="bd_bt">${this.roundUp(data[i].main.feels_like)}º</div>
-                        <div>${this.roundUp(this.msToKmh(data[i].wind.speed))} ESE</div>
+                        <div>${this.roundUp(this.msToKmh(data[i].wind.speed))} ${this.degToDirection(data[i].wind.deg)}</div>
                     </div>
                 `
                     break;
@@ -258,7 +288,7 @@ class WeatherGenerator {
                         <div class="bd_bt">${data.hourly[i].weather[0].main}</div>
                         <div class="bd_bt">${this.roundUp(data.hourly[i].temp)}º</div>
                         <div class="bd_bt">${this.roundUp(data.hourly[i].feels_like)}º</div>
-                        <div>${this.roundUp(this.msToKmh(data.hourly[i].wind_speed))} ESE</div>
+                        <div>${this.roundUp(this.msToKmh(data.hourly[i].wind_speed))} ${this.degToDirection(data.hourly[i].wind_deg)}</div>
                     </div>
                 `
                     break;
@@ -390,7 +420,7 @@ class WeatherGenerator {
     }
 
     showWeather(data) {
-
+        console.log(data)
         this.getCurrent(data);
 
         new WeatherCheck().searhc_hourly(data.coord.lat, data.coord.lon)
@@ -410,7 +440,7 @@ class WeatherGenerator {
 
     searchCity(name) {
         this.name = name
-        this.search.placeholder=this.name;
+        this.search.placeholder = this.name;
         const searchedCity = new WeatherCheck();
 
         searchedCity.search(this.name)
@@ -418,16 +448,37 @@ class WeatherGenerator {
             .catch(error => console.log(error));
 
     }
+    activeTabLinks(link){
+        if (link) {
+             console.log(link)
+            this.active.classList.remove('li_active');
+    
+            if (link.dataset.id == 'today') {
+                link.classList.add('li_active');
+                this.delElement('.days')
+                this.searchCity(this.name)
+
+            } else if (link.dataset.id == 'five-days') {
+                link.classList.add('li_active')
+
+                this.delElement('.block')
+                this.delElement('.days')
+                this.searchFive(this.name)
+            }
+        }
+    }
     init() {
         this.icon = document.querySelector('#search_icon');
         this.tabs = document.querySelector('#tabs')
         this.grid = document.querySelector('#grid')
-        
+
         console.log()
         this.search.addEventListener('keyup', (e) => {
             if (e.keyCode === 13) {
                 e.preventDefault();
-                this.searchCity(this.search.value)
+                this.searchCity(this.search.value);
+                console.log(this.active)
+                this.active.classList.remove('li_active');
             }
         })
 
@@ -440,26 +491,8 @@ class WeatherGenerator {
             }
         })
         this.tabs.addEventListener('click', (e) => {
-            let link = e.target.closest('.pages')
-
-            if (link) {
-                let active = document.querySelector('.li_active');
-                active.classList.remove('li_active');
-
-                if (link.dataset.id == 'today') {
-                    link.classList.add('li_active');
-                    console.log(this.name)
-                    this.delElement('.days')
-                    this.searchCity(this.name)
-
-                } else if (link.dataset.id == 'five-days') {
-                    link.classList.add('li_active')
-
-                    this.delElement('.block')
-                    this.delElement('.days')
-                    this.searchFive(this.name)
-                }
-            }
+            let link = e.target.closest('.pages');
+            this.activeTabLinks(link);
 
         })
     }
