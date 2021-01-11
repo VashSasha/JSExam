@@ -94,7 +94,7 @@ class WeatherCheck {
         <div class="error-wrap">  
             <img src="./img/404.png" alt=""> 
             <h2><span class="error-input">${name}</span> Could not be found</h2>
-            <p>Please enter a different location</p>
+            <p>Try something like <b>"Kiyv"</b> or <b>"Киев"</b> </p>
         </div>
         `
         let block = document.createElement('div');
@@ -114,10 +114,32 @@ class WeatherGenerator {
         this.search = document.querySelector('#search');
         this.searchInpt = document.querySelector('#search').placeholder;
         this.active = document.querySelector('.li_active');
+        this.tabs = document.querySelector('#tabs');
         this.currentData;
         this.init();
+        this.activeTabLinks();
     }
+    notFound(name) {
 
+        /** 
+         * 404 Error page.
+        */
+        this.search.placeholder = 'Enter a city';
+        let errorMesage = `
+        <div class="error-wrap">  
+            <img src="./img/404.png" alt=""> 
+            <h2><span class="error-input">${name}</span></h2>
+            <p>Please enter a different location</p>
+        </div>
+        `
+        let block = document.createElement('div');
+        block.classList.add('block');
+        block.innerHTML = errorMesage;
+
+        this.delElement('.block')
+        this.delElement('.days')
+        this.main.append(block)
+    }
     getUserLoc() {
         /***
          * I used jQuery because the source that provides this information recomended this way of executing.
@@ -172,12 +194,12 @@ class WeatherGenerator {
     }
 
     msToKmh(speed) {
-         /**
-         * converting miles per hour to km per hour
-         */
+        /**
+        * converting miles per hour to km per hour
+        */
         return (speed * 18) / 5
     }
-    
+
     degToDirection(num) {
         let val = Math.floor((num / 22.5) + 0.5);
         let arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
@@ -248,8 +270,6 @@ class WeatherGenerator {
             <h3>hourly</h3>
         </div>
         `
-        console.log(data)
-        // let d = this.unixConverter(data.current.dt, 'date');
 
         let grid_content = `
             <div class="col">
@@ -373,14 +393,13 @@ class WeatherGenerator {
                 arr.push(d);
             }
         }
-        console.log(arr.length)
-        // console.log(arr)
+
         if (arr.length < 6) {
             for (let i = arr.length; i < 9; i++) {
                 arr.push(data.list[i])
             }
         }
-        console.log(arr)
+
         let genArr = (e) => {
 
             $('.active').removeClass('active');
@@ -392,35 +411,34 @@ class WeatherGenerator {
 
             arr = []; //reset the array
 
-            // console.log(this.currentData)
-            // console.log(data)
-
             for (let d of data.list) {
                 if (d.dt_txt.includes(item.dataset.id)) {
                     arr.push(d);
 
                 }
             }
-
+            /**
+             * иногда сервер даёт меньше 6 улементов на ceгоднешний день;
+             * так что нужно добавлять значения из следующего;
+             */
             if (arr.length < 6) {
-                for (let i = arr.length; i < 9; i++) {
+                for (let i = arr.length; i < 6; i++) {
                     arr.push(data.list[i])
                 }
             }
             arr = arr.slice(0, 6)
-            console.log(arr.length)
+
             this.getHourly(arr, 'five')
         }
 
         arr = arr.slice(0, 6)
-        console.log(arr)
         this.getHourly(arr, 'five')
 
         items.addEventListener('click', genArr)
     }
 
     showWeather(data) {
-        console.log(data)
+
         this.getCurrent(data);
 
         new WeatherCheck().searhc_hourly(data.coord.lat, data.coord.lon)
@@ -440,7 +458,8 @@ class WeatherGenerator {
 
     searchCity(name) {
         this.name = name
-        this.search.placeholder = this.name;
+        this.search.placeholder = this.name? 'Enter a City': '';
+
         const searchedCity = new WeatherCheck();
 
         searchedCity.search(this.name)
@@ -448,52 +467,57 @@ class WeatherGenerator {
             .catch(error => console.log(error));
 
     }
-    activeTabLinks(link){
-        if (link) {
-             console.log(link)
+    activeTabLinks() {
+
+        this.tabs.addEventListener('click', (e) => {
+            let link = e.target.closest('.pages');
+            this.active = document.querySelector('.li_active');
             this.active.classList.remove('li_active');
-    
-            if (link.dataset.id == 'today') {
-                link.classList.add('li_active');
-                this.delElement('.days')
-                this.searchCity(this.name)
+            if (link) {
 
-            } else if (link.dataset.id == 'five-days') {
-                link.classList.add('li_active')
+                if (link.dataset.id == 'today') {
+                    link.classList.add('li_active');
+                    this.delElement('.days')
+                    this.searchCity(this.name)
 
-                this.delElement('.block')
-                this.delElement('.days')
-                this.searchFive(this.name)
+                } else if (link.dataset.id == 'five-days') {
+                    link.classList.add('li_active')
+
+                    this.delElement('.block')
+                    this.delElement('.days')
+                    this.searchFive(this.name)
+                }
             }
+        })
+    }
+    mainPage() {
+
+        this.active.classList.remove('li_active');
+        this.tabs.lastElementChild.classList.remove('li_active')
+        this.tabs.firstElementChild.classList.add('li_active')
+    }
+    process(value) {
+        if (value == '') {
+            this.notFound('Enter a searched city');
+        } else {
+            this.searchCity(value);
+            this.mainPage()
         }
     }
     init() {
-        this.icon = document.querySelector('#search_icon');
-        this.tabs = document.querySelector('#tabs')
-        this.grid = document.querySelector('#grid')
 
-        console.log()
+        this.icon = document.querySelector('#search_icon');
+        this.grid = document.querySelector('#grid');
         this.search.addEventListener('keyup', (e) => {
             if (e.keyCode === 13) {
                 e.preventDefault();
-                this.searchCity(this.search.value);
-                console.log(this.active)
-                this.active.classList.remove('li_active');
+                this.process(this.search.value)
             }
         })
 
         this.icon.addEventListener('click', (e) => {
             e.preventDefault();
-            if (this.search.value == '') {
-                alert('enter a city')
-            } else {
-                this.searchCity(this.search.value);
-            }
-        })
-        this.tabs.addEventListener('click', (e) => {
-            let link = e.target.closest('.pages');
-            this.activeTabLinks(link);
-
+            this.process(this.search.value)
         })
     }
 

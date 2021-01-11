@@ -70,24 +70,36 @@ nav ul {
     display: flex;
 }
 
-nav li {
-    padding: 10px 0;
-}
 
 nav li a {
     padding: 10px 20px;
+    box-sizing: border-box;
+    display: block;
     font-size: 18px;
     color: #fff;
     text-decoration: none;
+    border:none;
+    transition: all ease-in-out 0.3s;
+    
 }
 
 .li_active,
 nav li a:hover {
-    border: 1px solid rgb(162, 162, 162);
-    border-bottom: solid 3px #269C97;
+    background-color: rgb(70, 70, 70);
+    /* border-bottom: solid 3px #269C97; */
+    -webkit-box-shadow:inset  0 -8px 6px -4px #269C97;
+    -moz-box-shadow:inset  0 -8px 6px -4px #269C97;
+    box-shadow:inset 0 -8px 6px -4px #269C97; 
 }
-
-
+nav li a:hover{
+    /* background-color: rgb(164, 164, 164); */
+    /* color:#404040; */
+    border: none;
+    /* font-weight: bold; */
+    -webkit-box-shadow:inset  0 9px 4px -6px #269C97;
+    -moz-box-shadow:inset  0 9px 4px -6px #269C97;
+    box-shadow:inset 0 0px 20px -2px #269C97; 
+}
 /* \nav */
 
 
