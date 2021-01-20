@@ -1,6 +1,6 @@
 /**
  * date: 01/10/2021
- * v.5
+ * @varsions.5
  * name: Vashchuk Oleksandr
  */
 
@@ -117,7 +117,7 @@ class WeatherGenerator {
         this.tabs = document.querySelector('#tabs');
         this.currentData;
         this.init();
-        this.activeTabLinks();
+        // this.activeTabLinks();
     }
     notFound(name) {
 
@@ -438,7 +438,9 @@ class WeatherGenerator {
     }
 
     showWeather(data) {
-
+/**
+ * Обработка данних с сервера
+ */
         this.getCurrent(data);
 
         new WeatherCheck().searhc_hourly(data.coord.lat, data.coord.lon)
@@ -491,7 +493,6 @@ class WeatherGenerator {
         })
     }
     mainPage() {
-
         this.active.classList.remove('li_active');
         this.tabs.lastElementChild.classList.remove('li_active')
         this.tabs.firstElementChild.classList.add('li_active')
@@ -505,7 +506,7 @@ class WeatherGenerator {
         }
     }
     init() {
-
+        this.activeTabLinks();
         this.icon = document.querySelector('#search_icon');
         this.grid = document.querySelector('#grid');
         this.search.addEventListener('keyup', (e) => {
@@ -523,6 +524,4 @@ class WeatherGenerator {
 
 }
 
-// 
 const newLoc = new WeatherGenerator().getUserLoc();
-// const newLoc = new WeatherGenerator();
