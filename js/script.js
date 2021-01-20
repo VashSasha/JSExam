@@ -1,6 +1,6 @@
 /**
  * date: 01/10/2021
- * @varsions.5
+ * @version 5
  * name: Vashchuk Oleksandr
  */
 
@@ -117,10 +117,8 @@ class WeatherGenerator {
         this.tabs = document.querySelector('#tabs');
         this.currentData;
         this.init();
-        // this.activeTabLinks();
     }
     notFound(name) {
-
         /** 
          * 404 Error page.
         */
@@ -354,8 +352,7 @@ class WeatherGenerator {
     }
 
     fiveDaysForecast(data) {
-        // this.currentData.current.dt_txt = this.showDate('date', this.unixConverter(this.currentData.current, 'date'))
-
+        console.log(data)
         let div = document.createElement('div');
         div.classList.add('days')
 
@@ -437,10 +434,11 @@ class WeatherGenerator {
         items.addEventListener('click', genArr)
     }
 
+    /**
+     * Обработка данних с сервера
+     */
     showWeather(data) {
-/**
- * Обработка данних с сервера
- */
+        console.log(data)
         this.getCurrent(data);
 
         new WeatherCheck().searhc_hourly(data.coord.lat, data.coord.lon)
@@ -460,7 +458,7 @@ class WeatherGenerator {
 
     searchCity(name) {
         this.name = name
-        this.search.placeholder = this.name? 'Enter a City': '';
+        this.search.placeholder = this.name ? 'Enter a City' : '';
 
         const searchedCity = new WeatherCheck();
 
